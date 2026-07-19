@@ -6,8 +6,8 @@
   const ROWS = 25;
   const STORAGE_KEY = "snakeHighScore";
 
-  const INITIAL_INTERVAL = 110;
-  const MIN_INTERVAL = 60;
+  const INITIAL_INTERVAL = 160;
+  const MIN_INTERVAL = 90;
   const SPEED_STEP = 8;
   const EAT_MILESTONE = 10;
   const NORMAL_SCORE = 10;
