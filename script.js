@@ -6,9 +6,9 @@
   const ROWS = 25;
   const STORAGE_KEY = "snakeHighScore";
 
-  const INITIAL_INTERVAL = 160;
-  const MIN_INTERVAL = 90;
-  const SPEED_STEP = 8;
+  const INITIAL_INTERVAL = 200;
+  const MIN_INTERVAL = 40;
+  const SPEED_STEP = 10;
   const EAT_MILESTONE = 10;
   const NORMAL_SCORE = 10;
   const BONUS_SCORE = 50;
@@ -25,7 +25,8 @@
   const pauseBtn = document.getElementById("pauseBtn");
   const resumeBtn = document.getElementById("resumeBtn");
   const stopBtn = document.getElementById("stopBtn");
-  const dpadButtons = document.querySelectorAll(".side-controls button");
+  const pauseResumeBtn = document.getElementById("pauseResumeBtn");
+  const dpadButtons = document.querySelectorAll(".dpad-cross button[data-dir]");
 
   let snake, dir, nextDir, food, score, highScore, running, paused, loopId;
   let eatCount, currentInterval, bonusTimeoutId;
@@ -99,6 +100,15 @@
     pauseBtn.disabled = !running || paused;
     resumeBtn.disabled = !running || !paused;
     stopBtn.disabled = !running;
+
+    pauseResumeBtn.disabled = !running;
+    if (!running || !paused) {
+      pauseResumeBtn.textContent = "❙❙"; // pause icon
+      pauseResumeBtn.setAttribute("aria-label", "Pause");
+    } else {
+      pauseResumeBtn.textContent = "▶"; // play/resume icon
+      pauseResumeBtn.setAttribute("aria-label", "Resume");
+    }
   }
 
   function draw() {
@@ -288,6 +298,7 @@
   pauseBtn.addEventListener("click", pauseGame);
   resumeBtn.addEventListener("click", resumeGame);
   stopBtn.addEventListener("click", stopGame);
+  pauseResumeBtn.addEventListener("click", togglePause);
 
   resetStatsBtn.addEventListener("click", () => {
     if (!confirm("Reset your high score to 0?")) return;
