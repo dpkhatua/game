@@ -1,10 +1,18 @@
 (() => {
   "use strict";
 
-  const CELL = 20;
-  const COLS = 20;
-  const ROWS = 20;
+  const CELL = 16;
+  const COLS = 25;
+  const ROWS = 25;
   const STORAGE_KEY = "snakeHighScore";
+
+  const INITIAL_INTERVAL = 110;
+  const MIN_INTERVAL = 60;
+  const SPEED_STEP = 8;
+  const EAT_MILESTONE = 10;
+  const NORMAL_SCORE = 10;
+  const BONUS_SCORE = 50;
+  const BONUS_DURATION = 4500;
 
   const canvas = document.getElementById("board");
   const ctx = canvas.getContext("2d");
@@ -14,9 +22,10 @@
   const overlayText = document.getElementById("overlayText");
   const startBtn = document.getElementById("startBtn");
   const resetStatsBtn = document.getElementById("resetStatsBtn");
-  const dpadButtons = document.querySelectorAll(".dpad button");
+  const dpadButtons = document.querySelectorAll(".side-controls button");
 
   let snake, dir, nextDir, food, score, highScore, running, paused, loopId;
+  let eatCount, currentInterval, bonusTimeoutId;
 
   function loadHighScore() {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -28,15 +37,28 @@
     localStorage.setItem(STORAGE_KEY, String(value));
   }
 
-  function randomFood() {
+  function randomFood(isBonus = false) {
     let pos;
     do {
       pos = {
         x: Math.floor(Math.random() * COLS),
         y: Math.floor(Math.random() * ROWS),
+        bonus: isBonus,
       };
     } while (snake.some((s) => s.x === pos.x && s.y === pos.y));
     return pos;
+  }
+
+  function clearBonusTimer() {
+    if (bonusTimeoutId) {
+      clearTimeout(bonusTimeoutId);
+      bonusTimeoutId = null;
+    }
+  }
+
+  function restartLoop() {
+    clearInterval(loopId);
+    loopId = setInterval(step, currentInterval);
   }
 
   function resetGame() {
@@ -48,7 +70,10 @@
     dir = { x: 1, y: 0 };
     nextDir = { x: 1, y: 0 };
     score = 0;
-    food = randomFood();
+    eatCount = 0;
+    currentInterval = INITIAL_INTERVAL;
+    clearBonusTimer();
+    food = randomFood(false);
     scoreEl.textContent = "0";
     paused = false;
   }
@@ -71,12 +96,18 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // food
-    ctx.fillStyle = "#f87171";
-    ctx.beginPath();
     const fx = food.x * CELL + CELL / 2;
     const fy = food.y * CELL + CELL / 2;
-    ctx.arc(fx, fy, CELL / 2 - 3, 0, Math.PI * 2);
+    ctx.fillStyle = food.bonus ? "#facc15" : "#f87171";
+    ctx.beginPath();
+    const radius = food.bonus ? CELL / 2 + 2 : CELL / 2 - 3;
+    ctx.arc(fx, fy, radius, 0, Math.PI * 2);
     ctx.fill();
+    if (food.bonus) {
+      ctx.strokeStyle = "#fde68a";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
 
     // snake
     snake.forEach((seg, i) => {
@@ -105,9 +136,30 @@
     snake.unshift(head);
 
     if (head.x === food.x && head.y === food.y) {
-      score += 10;
+      if (food.bonus) {
+        // bonus food eaten: points only, no speed/milestone re-trigger
+        score += BONUS_SCORE;
+        clearBonusTimer();
+        food = randomFood(false);
+      } else {
+        score += NORMAL_SCORE;
+        eatCount++;
+        if (eatCount % EAT_MILESTONE === 0) {
+          // speed up a notch
+          currentInterval = Math.max(MIN_INTERVAL, currentInterval - SPEED_STEP);
+          restartLoop();
+          // spawn a temporary, bigger bonus food
+          food = randomFood(true);
+          clearBonusTimer();
+          bonusTimeoutId = setTimeout(() => {
+            if (food.bonus) food = randomFood(false);
+            bonusTimeoutId = null;
+          }, BONUS_DURATION);
+        } else {
+          food = randomFood(false);
+        }
+      }
       scoreEl.textContent = String(score);
-      food = randomFood();
     } else {
       snake.pop();
     }
@@ -118,6 +170,7 @@
   function gameOver() {
     running = false;
     clearInterval(loopId);
+    clearBonusTimer();
 
     if (score > highScore) {
       highScore = score;
@@ -134,8 +187,7 @@
     hideOverlay();
     running = true;
     draw();
-    clearInterval(loopId);
-    loopId = setInterval(step, 110);
+    restartLoop();
   }
 
   function togglePause() {
