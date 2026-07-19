@@ -22,6 +22,9 @@
   const overlayText = document.getElementById("overlayText");
   const startBtn = document.getElementById("startBtn");
   const resetStatsBtn = document.getElementById("resetStatsBtn");
+  const pauseBtn = document.getElementById("pauseBtn");
+  const resumeBtn = document.getElementById("resumeBtn");
+  const stopBtn = document.getElementById("stopBtn");
   const dpadButtons = document.querySelectorAll(".side-controls button");
 
   let snake, dir, nextDir, food, score, highScore, running, paused, loopId;
@@ -90,6 +93,12 @@
 
   function hideOverlay() {
     overlay.classList.add("hidden");
+  }
+
+  function updateControlButtons() {
+    pauseBtn.disabled = !running || paused;
+    resumeBtn.disabled = !running || !paused;
+    stopBtn.disabled = !running;
   }
 
   function draw() {
@@ -169,6 +178,7 @@
 
   function gameOver() {
     running = false;
+    paused = false;
     clearInterval(loopId);
     clearBonusTimer();
 
@@ -180,6 +190,7 @@
     } else {
       showOverlay(`Game over. Score: ${score}. Press Start to play again.`);
     }
+    updateControlButtons();
   }
 
   function startGame() {
@@ -188,16 +199,43 @@
     running = true;
     draw();
     restartLoop();
+    updateControlButtons();
+  }
+
+  function pauseGame() {
+    if (!running || paused) return;
+    paused = true;
+    showOverlay("Paused. Press Resume to continue.", false);
+    updateControlButtons();
+  }
+
+  function resumeGame() {
+    if (!running || !paused) return;
+    paused = false;
+    hideOverlay();
+    updateControlButtons();
   }
 
   function togglePause() {
     if (!running) return;
-    paused = !paused;
-    if (paused) {
-      showOverlay("Paused. Press Space to resume.", false);
-    } else {
-      hideOverlay();
+    if (paused) resumeGame();
+    else pauseGame();
+  }
+
+  function stopGame() {
+    if (!running) return;
+    running = false;
+    paused = false;
+    clearInterval(loopId);
+    clearBonusTimer();
+
+    if (score > highScore) {
+      highScore = score;
+      saveHighScore(highScore);
+      updateHighScoreDisplay();
     }
+    showOverlay(`Stopped. Score: ${score}. Press Start to play again.`);
+    updateControlButtons();
   }
 
   function setDirection(name) {
@@ -247,6 +285,9 @@
   });
 
   startBtn.addEventListener("click", startGame);
+  pauseBtn.addEventListener("click", pauseGame);
+  resumeBtn.addEventListener("click", resumeGame);
+  stopBtn.addEventListener("click", stopGame);
 
   resetStatsBtn.addEventListener("click", () => {
     if (!confirm("Reset your high score to 0?")) return;
@@ -262,4 +303,5 @@
   food = randomFood();
   draw();
   showOverlay("Press Space or tap Start to play");
+  updateControlButtons();
 })();
