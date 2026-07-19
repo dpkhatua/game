@@ -30,17 +30,18 @@
     </div>
 
     <div class="controls">
-      <p>Arrow keys / WASD to move. Space to pause. Walls wrap around!</p>
-      <div class="dpad">
-        <button data-dir="up" aria-label="Up">&#8593;</button>
-        <div class="dpad-row">
-          <button data-dir="left" aria-label="Left">&#8592;</button>
-          <button data-dir="down" aria-label="Down">&#8595;</button>
-          <button data-dir="right" aria-label="Right">&#8594;</button>
-        </div>
-      </div>
+      <p>Arrow keys / WASD to move. Space to pause. Walls wrap around! Eat 10 for a bonus.</p>
       <button id="resetStatsBtn" class="reset-btn">Reset High Score</button>
     </div>
+  </div>
+
+  <div class="side-controls side-left">
+    <button data-dir="left" aria-label="Left">&#8592;</button>
+    <button data-dir="down" aria-label="Down">&#8595;</button>
+  </div>
+  <div class="side-controls side-right">
+    <button data-dir="up" aria-label="Up">&#8593;</button>
+    <button data-dir="right" aria-label="Right">&#8594;</button>
   </div>
 
   <script src="script.js"></script>
