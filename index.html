@@ -36,18 +36,17 @@
     </div>
 
     <div class="controls">
-      <p>Arrow keys / WASD to move. Space to pause. Walls wrap around! Eat 10 for a bonus.</p>
+      <p>Arrow keys / WASD to move, Space to pause. On mobile, use the cross pad below — the center button pauses/resumes. Walls wrap around! Eat 10 for a bonus.</p>
       <button id="resetStatsBtn" class="reset-btn">Reset High Score</button>
     </div>
   </div>
 
-  <div class="side-controls side-left">
-    <button data-dir="left" aria-label="Left">&#8592;</button>
-    <button data-dir="down" aria-label="Down">&#8595;</button>
-  </div>
-  <div class="side-controls side-right">
-    <button data-dir="up" aria-label="Up">&#8593;</button>
-    <button data-dir="right" aria-label="Right">&#8594;</button>
+  <div class="dpad-cross">
+    <button class="dpad-btn dpad-up" data-dir="up" aria-label="Up">&#8593;</button>
+    <button class="dpad-btn dpad-left" data-dir="left" aria-label="Left">&#8592;</button>
+    <button id="pauseResumeBtn" class="dpad-btn dpad-center" aria-label="Pause or resume" disabled>&#10074;&#10074;</button>
+    <button class="dpad-btn dpad-right" data-dir="right" aria-label="Right">&#8594;</button>
+    <button class="dpad-btn dpad-down" data-dir="down" aria-label="Down">&#8595;</button>
   </div>
 
   <script src="script.js"></script>
